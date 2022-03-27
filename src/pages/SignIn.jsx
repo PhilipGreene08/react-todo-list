@@ -3,21 +3,20 @@ import { useState } from 'react';
 import { db } from '../firebase.config';
 import {
   getAuth,
-  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
-function SignUp() {
+function SignIn() {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
   });
 
-  const { name, email, password } = formData;
+  const { email, password } = formData;
   const navigate = useNavigate();
   const onChange = (e) => {
     setFormData((formData) => ({ ...formData, [e.target.id]: e.target.value }));
@@ -29,27 +28,15 @@ function SignUp() {
 
     try {
       const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      const user = userCredential.user;
+      //const user = userCredential.user;
 
-      updateProfile(auth.currentUser, {
-        displayName: name,
-      });
-      //I should delete the password here but for the sake of
-      //simplicity I wont just yet
-
-      await setDoc(doc(db, 'users', user.uid), {
-        name,
-        email,
-        password,
-        timestamp: serverTimestamp(),
-      });
-      setFormData({ name: '', email: '', password: '' });
+      console.log(`signed In`);
       navigate('/profile');
     } catch (error) {
       console.log(error);
@@ -59,18 +46,10 @@ function SignUp() {
     <>
       <div>
         <header>
-          <h1>Sign Up</h1>
+          <h1>Sign In</h1>
         </header>
         <main>
           <form onSubmit={onSubmit}>
-            <input
-              type='text'
-              id='name'
-              placeholder='name'
-              className='nameInput'
-              value={name}
-              onChange={onChange}
-            />
             <input
               type='email'
               id='email'
@@ -87,9 +66,9 @@ function SignUp() {
               value={password}
               onChange={onChange}
             />
-            <div className='signUp'>
-              <p className='signUpText'>Sign Up</p>
-              <button className='signUpButton'>Sign Up</button>
+            <div className='signIn'>
+              <p className='signInText'>Sign In</p>
+              <button className='signInButton'>Sign In</button>
             </div>
           </form>
         </main>
@@ -98,4 +77,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default SignIn;
