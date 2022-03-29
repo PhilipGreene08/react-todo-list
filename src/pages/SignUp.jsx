@@ -7,7 +7,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function SignUp() {
   const [loading, setLoading] = useState(true);
@@ -19,8 +19,12 @@ function SignUp() {
 
   const { name, email, password } = formData;
   const navigate = useNavigate();
+
   const onChange = (e) => {
-    setFormData((formData) => ({ ...formData, [e.target.id]: e.target.value }));
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
   };
 
   //sign up new user
@@ -43,14 +47,13 @@ function SignUp() {
       //I should delete the password here but for the sake of
       //simplicity I wont just yet
 
-      await setDoc(doc(db, 'users', user.uid), {
-        name,
-        email,
-        password,
-        timestamp: serverTimestamp(),
-      });
-      setFormData({ name: '', email: '', password: '' });
-      navigate('/profile');
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+
+      await setDoc(doc(db, 'users', user.uid), formDataCopy);
+      //setFormData({ name: '', email: '', password: '' });
+      navigate('/');
     } catch (error) {
       console.log(error);
     }
@@ -92,6 +95,9 @@ function SignUp() {
               <button className='signUpButton'>Sign Up</button>
             </div>
           </form>
+          <Link to='/sign-in' className='signInUpLink'>
+            Sign In Instead
+          </Link>
         </main>
       </div>
     </>

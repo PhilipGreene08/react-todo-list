@@ -1,13 +1,9 @@
 import React from 'react';
 import { useState } from 'react';
 import { db } from '../firebase.config';
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function SignIn() {
   const [loading, setLoading] = useState(true);
@@ -17,9 +13,14 @@ function SignIn() {
   });
 
   const { email, password } = formData;
+
   const navigate = useNavigate();
+
   const onChange = (e) => {
-    setFormData((formData) => ({ ...formData, [e.target.id]: e.target.value }));
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
   };
 
   //sign up new user
@@ -33,11 +34,11 @@ function SignIn() {
         email,
         password
       );
-
+      console.log(userCredential.user);
       //const user = userCredential.user;
-
-      console.log(`signed In`);
-      navigate('/profile');
+      if (userCredential.user) {
+        navigate('/profile');
+      }
     } catch (error) {
       console.log(error);
     }
@@ -71,6 +72,9 @@ function SignIn() {
               <button className='signInButton'>Sign In</button>
             </div>
           </form>
+          <Link to='/sign-up' className='signInUpLink'>
+            Sign up Instead
+          </Link>
         </main>
       </div>
     </>

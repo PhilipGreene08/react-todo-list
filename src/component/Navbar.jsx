@@ -1,24 +1,26 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
   return (
     <div>
       <main>
         <nav className='navbar'>
           <div className='navbar-container container'>
             <ul className='menu-items'>
-              <li>
-                <Link to='/'>Home</Link>
+              <li onClick={() => navigate('/')}>
+                <p>Home</p>
               </li>
-              <li>
-                <Link to='/todo-list'>List of Todos</Link>
+              <li onClick={() => navigate('/todo-list')}>
+                <p>List of Todos</p>
               </li>
-              <li>
-                <Link to='/about'>About</Link>
+              <li onClick={() => navigate('/about')}>
+                <p>About</p>
               </li>
-              <li>
-                <Link to='/profile'>Profile</Link>
+              <li onClick={() => navigate('/profile')}>
+                <p>Profile</p>
               </li>
             </ul>
           </div>
