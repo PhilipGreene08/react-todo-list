@@ -25,7 +25,7 @@ export const useAuthStatus = () => {
     };
   }, [isMounted]);
 
-  return { loggedIn };
+  return { loggedIn, checkingStatus };
 };
 
 export default useAuthStatus;
