@@ -56,7 +56,7 @@ function Profile() {
   return (
     <div>
       <header>
-        <p>Profile Header</p>
+        <p>Hello {name}!</p>
         <button onClick={onLogout}>Log Out</button>
       </header>
 

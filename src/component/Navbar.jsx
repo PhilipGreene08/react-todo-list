@@ -14,7 +14,7 @@ function Navbar() {
                 <p>Home</p>
               </li>
               <li onClick={() => navigate('/todo-list')}>
-                <p>List of Todos</p>
+                <p>Todos</p>
               </li>
               <li onClick={() => navigate('/about')}>
                 <p>About</p>
