@@ -17,9 +17,9 @@ function App() {
         <Routes>
           <Route path='/' element={<Welcome />} />
           <Route path='/about' element={<About />} />
-
-          <Route path='/todo-list' element={<Todos />} />
-
+          <Route path='/todo-list' element={<PrivateRoute />}>
+            <Route path='/todo-list' element={<Todos />} />
+          </Route>
           <Route path='/profile' element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
           </Route>

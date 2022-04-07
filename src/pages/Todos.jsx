@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   collection,
   doc,
@@ -12,22 +12,24 @@ import { getAuth } from 'firebase/auth';
 
 function Todos() {
   const [newTodo, setNewTodo] = useState();
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState('');
+  const auth = getAuth();
 
   useEffect(() => {
-    async function fetchTodos() {
-      const auth = await getAuth();
-
-      const currentUser = await auth.currentUser.uid;
-      const todosRef = await collection(db, 'todos');
-      const q = await query(todosRef, where('userRef', '==', currentUser));
-
-      const querySnap = await getDocs(q);
-      querySnap.forEach((doc) => console.log(doc.data()));
+    if (auth.currentUser) {
+      setCurrentUser(auth.currentUser.uid);
+      fetchData();
     }
-
-    fetchTodos();
   }, []);
+
+  const fetchData = async () => {
+    const todosRef = collection(db, 'todos');
+    const q = query(todosRef, where('userRef', '==', currentUser));
+    const querySnap = await getDocs(q);
+    querySnap.forEach((doc) => {
+      console.log(doc.id, ' => ', doc.data());
+    });
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -44,20 +46,23 @@ function Todos() {
         <h1>Todos</h1>
       </header>
       <main>
-        <form onSubmit={onSubmit}>
-          <input
-            type='text'
-            placeholder='add todo'
-            id='newTodo'
-            onChange={onChange}
-          />
-          <select type='text' name='urgency' list='todoUrgency'>
-            <option value='high'>High</option>{' '}
-            <option value='medium'>Medium</option>{' '}
-            <option value='low'>Low</option>{' '}
-          </select>
-          <button type='submit'>Add New Todo</button>
-        </form>
+        <div className='newTodos'>
+          <form onSubmit={onSubmit}>
+            <input
+              type='text'
+              placeholder='add todo'
+              id='newTodo'
+              onChange={onChange}
+            />
+            <select type='text' name='urgency' list='todoUrgency'>
+              <option value='high'>High</option>{' '}
+              <option value='medium'>Medium</option>{' '}
+              <option value='low'>Low</option>{' '}
+            </select>
+            <button type='submit'>Add New Todo</button>
+          </form>
+        </div>
+        <div className='todoList'></div>
       </main>
     </div>
   );
