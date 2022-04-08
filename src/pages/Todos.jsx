@@ -9,27 +9,32 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 function Todos() {
+  const [todoData, setTodoData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [newTodo, setNewTodo] = useState();
-  const [currentUser, setCurrentUser] = useState('');
   const auth = getAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (auth.currentUser) {
-      setCurrentUser(auth.currentUser.uid);
-      fetchData();
-    }
-  }, []);
+      const fetchData = async () => {
+        const todosRef = collection(db, 'todos');
+        const q = query(todosRef, where('userRef', '==', auth.currentUser.uid));
+        const querySnap = await getDocs(q);
+        let todos = [];
+        querySnap.forEach((doc) => {
+          return todos.push({ data: doc.data() });
+        });
+        setTodoData(todos);
 
-  const fetchData = async () => {
-    const todosRef = collection(db, 'todos');
-    const q = query(todosRef, where('userRef', '==', currentUser));
-    const querySnap = await getDocs(q);
-    querySnap.forEach((doc) => {
-      console.log(doc.id, ' => ', doc.data());
-    });
-  };
+        setLoading(false);
+      };
+      fetchData().catch(console.error);
+    }
+  }, [navigate]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -62,7 +67,15 @@ function Todos() {
             <button type='submit'>Add New Todo</button>
           </form>
         </div>
-        <div className='todoList'></div>
+        <div className='todoList'>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <ul>
+              <li>{todoData.map((todo) => todo.data.name)}</li>
+            </ul>
+          )}
+        </div>
       </main>
     </div>
   );
