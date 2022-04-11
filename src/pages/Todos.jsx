@@ -8,33 +8,37 @@ import {
   getDocs,
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function Todos() {
-  const [todoData, setTodoData] = useState(null);
+  const [todoData, setTodoData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newTodo, setNewTodo] = useState();
   const auth = getAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth.currentUser) {
-      const fetchData = async () => {
-        const todosRef = collection(db, 'todos');
-        const q = query(todosRef, where('userRef', '==', auth.currentUser.uid));
-        const querySnap = await getDocs(q);
-        let todos = [];
-        querySnap.forEach((doc) => {
-          return todos.push({ data: doc.data() });
-        });
-        setTodoData(todos);
-
-        setLoading(false);
-      };
-      fetchData().catch(console.error);
-    }
-  }, [navigate]);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const fetchData = async () => {
+          const todosRef = collection(db, 'todos');
+          const q = query(
+            todosRef,
+            where('userRef', '==', auth.currentUser.uid)
+          );
+          const querySnap = await getDocs(q);
+          const todosArray = [];
+          querySnap.forEach((doc) => {
+            todosArray.push(doc.data());
+          });
+          setTodoData(todosArray);
+          setLoading(false);
+        };
+        fetchData();
+      }
+    });
+  }, []);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -72,7 +76,7 @@ function Todos() {
             <p>Loading...</p>
           ) : (
             <ul>
-              <li>{todoData.map((todo) => todo.data.name)}</li>
+              <li>{todoData.map((todo) => todo.name)}</li>
             </ul>
           )}
         </div>
