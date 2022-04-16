@@ -10,6 +10,7 @@ import {
 import { db } from '../firebase.config';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import TodoItem from '../component/TodoItem';
 
 function Todos() {
   const [todoData, setTodoData] = useState([]);
@@ -29,10 +30,12 @@ function Todos() {
           );
           const querySnap = await getDocs(q);
           const todosArray = [];
+
           querySnap.forEach((doc) => {
             todosArray.push(doc.data());
           });
           setTodoData(todosArray);
+
           setLoading(false);
         };
         fetchData();
@@ -48,7 +51,7 @@ function Todos() {
   const onChange = (e) => {
     setNewTodo(e.target.value);
   };
-
+  console.log(todoData);
   return (
     <div>
       <header>
@@ -76,7 +79,13 @@ function Todos() {
             <p>Loading...</p>
           ) : (
             <ul>
-              <li>{todoData.map((todo) => todo.name)}</li>
+              {todoData.map((todo) => (
+                <TodoItem
+                  key={todo.timestamp}
+                  id={todo.timestamp}
+                  todo={todo}
+                />
+              ))}
             </ul>
           )}
         </div>
