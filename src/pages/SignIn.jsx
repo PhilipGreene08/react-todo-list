@@ -33,7 +33,7 @@ function SignIn() {
         email,
         password
       );
-      console.log(userCredential.user);
+
       //const user = userCredential.user;
       if (userCredential.user) {
         navigate('/profile');

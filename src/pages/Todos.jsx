@@ -6,16 +6,26 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import TodoItem from '../component/TodoItem';
+//import TodoItem from '../component/TodoItem';
 
 function Todos() {
   const [todoData, setTodoData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newTodo, setNewTodo] = useState();
+  const [newTodo, setNewTodo] = useState({
+    name: '',
+    department: '',
+    completed: false,
+    userRef: '',
+    timestamp: 0,
+  });
+  const { name, department, completed, userRef, timestamp } = newTodo;
+
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -49,9 +59,17 @@ function Todos() {
   };
 
   const onChange = (e) => {
-    setNewTodo(e.target.value);
+    setNewTodo((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
   };
-  console.log(todoData);
+
+  const onDelete = async (todoToDelete) => {
+    // await deleteDoc(doc(db, 'todos', todoToDelete));
+  };
+
+  const onEdit = () => {};
   return (
     <div>
       <header>
@@ -63,10 +81,24 @@ function Todos() {
             <input
               type='text'
               placeholder='add todo'
-              id='newTodo'
+              id='name'
+              value={name}
               onChange={onChange}
             />
-            <select type='text' name='urgency' list='todoUrgency'>
+            <input
+              type='text'
+              placeholder='add team'
+              id='department'
+              value={department}
+              onChange={onChange}
+            />
+            <select
+              onChange={onChange}
+              type='text'
+              name='urgency'
+              list='todoUrgency'
+              id=''
+            >
               <option value='high'>High</option>{' '}
               <option value='medium'>Medium</option>{' '}
               <option value='low'>Low</option>{' '}
@@ -80,11 +112,21 @@ function Todos() {
           ) : (
             <ul>
               {todoData.map((todo) => (
-                <TodoItem
-                  key={todo.timestamp}
-                  id={todo.timestamp}
-                  todo={todo}
-                />
+                <li>
+                  <p>{todo.name}</p>
+                  <button
+                    onClick={() => onDelete(todo.name)}
+                    className='deleteTodoButton'
+                  >
+                    X
+                  </button>
+                  <button
+                    onClick={() => onEdit(todo.name)}
+                    className='deleteTodoButton'
+                  >
+                    Edit
+                  </button>
+                </li>
               ))}
             </ul>
           )}
