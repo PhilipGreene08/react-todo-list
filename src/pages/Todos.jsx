@@ -8,6 +8,7 @@ import {
   getDocs,
   deleteDoc,
   serverTimestamp,
+  addDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -22,7 +23,8 @@ function Todos() {
     department: '',
     completed: false,
     userRef: '',
-    timestamp: 0,
+    timestamp: serverTimestamp(),
+    urgency: '',
   });
   const { name, department, completed, userRef, timestamp } = newTodo;
 
@@ -53,15 +55,19 @@ function Todos() {
     });
   }, []);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    console.log(newTodo);
+    newTodo.userRef = auth.currentUser.uid;
+    const newTodoDoc = newTodo;
+    await addDoc(collection(db, 'todos'), newTodoDoc);
   };
 
   const onChange = (e) => {
+    console.log(e.target.innerText);
     setNewTodo((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
+      timestamp: serverTimestamp(),
     }));
   };
 
@@ -97,8 +103,11 @@ function Todos() {
               type='text'
               name='urgency'
               list='todoUrgency'
-              id=''
+              id='urgency'
             >
+              <option value='default' disabled>
+                Select Urgency Level
+              </option>
               <option value='high'>High</option>{' '}
               <option value='medium'>Medium</option>{' '}
               <option value='low'>Low</option>{' '}
@@ -114,6 +123,7 @@ function Todos() {
               {todoData.map((todo) => (
                 <li>
                   <p>{todo.name}</p>
+                  <p>{todo.department}</p>
                   <button
                     onClick={() => onDelete(todo.name)}
                     className='deleteTodoButton'
